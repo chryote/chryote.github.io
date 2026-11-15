@@ -3,94 +3,364 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Project Catalogue</title>
+  <title>Project Catalogue - chryote</title>
   <style>
+    :root {
+      --bg: #f6f8fa;
+      --card-bg: #ffffff;
+      --text-primary: #1f2328;
+      --text-secondary: #656d76;
+      --border-color: #d0d7de;
+      --accent: #0969da;
+      --accent-light: #ddf4ff;
+      --accent-border: rgba(9, 105, 218, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #f6f8fa;
-      color: #24292f;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 2.5rem 1.5rem;
+      line-height: 1.5;
     }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 1.5rem;
-      margin-top: 2rem;
     }
+
     .card {
-      background: white;
+      background: var(--card-bg);
       padding: 1.5rem;
-      border-radius: 8px;
-      border: 1px solid #d0d7de;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
       text-decoration: none;
       color: inherit;
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
     }
+
     .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(140,149,159,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(140, 149, 159, 0.18);
+      border-color: #0969da88;
     }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+
     .card h3 {
-      margin: 0 0 0.5rem 0;
-      color: #0969da;
-      font-size: 1.25rem;
+      margin: 0;
+      color: var(--accent);
+      font-size: 1.15rem;
+      font-weight: 600;
+      word-break: break-word;
     }
+
+    .badge-framework {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .card p {
       flex-grow: 1;
-      color: #57606a;
-      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
       line-height: 1.5;
+      margin: 0 0 1rem 0;
     }
-    .meta {
-      margin-top: 1rem;
-      font-size: 0.8rem;
-      color: #57606a;
+
+    .tech-tags {
       display: flex;
-      gap: 1rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .tech-tag {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      background: #f1f3f5;
+      color: #495057;
+      border: 1px solid #e9ecef;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      border-top: 1px solid #f0f2f5;
+      padding-top: 0.75rem;
+      margin-top: auto;
+    }
+
+    .lang-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 500;
+    }
+
+    .lang-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .github-link-icon {
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+    }
+
+    .card:hover .github-link-icon {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
-  <h1>Project Catalogue</h1>
-  <p>A live view of my latest open-source work.</p>
+  <header>
+    <h1>Project Catalogue</h1>
+    <p class="subtitle">A showcase of public open-source projects, frameworks, and proofs of concept.</p>
+  </header>
   
   <div class="grid" id="portfolio">
     <!-- Repositories will load here -->
   </div>
 
   <script>
-    
-    const username = 'chryote'; 
-    
-    // Fetch repositories sorted by most recently updated
-    fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=12`)
-      .then(response => response.json())
-      .then(repos => {
-        const container = document.getElementById('portfolio');
-        
-        // Filter out forked repositories so only your original work shows
-        const originalRepos = repos.filter(repo => !repo.fork);
-        
-        originalRepos.forEach(repo => {
-          const card = document.createElement('a');
-          card.className = 'card';
-          card.href = repo.html_url;
-          card.target = '_blank';
-          card.innerHTML = `
+    const username = 'chryote';
+
+    // Curated framework and tech stack metadata for known projects
+    const projectRegistry = {
+      'project_compvis': {
+        framework: 'Flask',
+        stack: ['Flask', 'PyTorch', 'OpenCV', 'Gunicorn']
+      },
+      'project_rag': {
+        framework: 'Gin (Go)',
+        stack: ['Gin', 'Go 1.27', 'Sonic JSON', 'RAG']
+      },
+      'project_m2m': {
+        framework: 'gRPC (C++)',
+        stack: ['gRPC', 'Protobuf', 'C++17', 'Conan', 'CMake']
+      },
+      'project_ocr': {
+        framework: 'FastAPI',
+        stack: ['FastAPI', 'Tesseract OCR', 'OpenCV', 'Pydantic v2']
+      },
+      'project_scrapper': {
+        framework: 'Express & Playwright',
+        stack: ['Express 5', 'Playwright', 'Node.js', 'XLSX']
+      },
+      'project_digiflazz': {
+        framework: 'Laravel',
+        stack: ['Laravel 13', 'PHP 8.3', 'Sanctum', 'Prometheus']
+      },
+      'text-rpg': {
+        framework: 'Custom Sim Engine',
+        stack: ['Python', 'Curses', 'Perlin Noise', 'Matplotlib']
+      },
+      'chryote.github.io': {
+        framework: 'Vanilla HTML5/JS',
+        stack: ['HTML5', 'CSS3', 'JavaScript', 'GitHub Pages']
+      }
+    };
+
+    // GitHub language color palette
+    const langColors = {
+      'Python': '#3572A5',
+      'Go': '#00ADD8',
+      'C++': '#f34b7d',
+      'JavaScript': '#f1e05a',
+      'TypeScript': '#3178c6',
+      'PHP': '#4F5D95',
+      'HTML': '#e34c26',
+      'Shell': '#89e051',
+      'Other': '#8b949e'
+    };
+
+    // Heuristic detection fallback for future/unregistered repositories
+    function detectFramework(repo) {
+      if (projectRegistry[repo.name]) {
+        return projectRegistry[repo.name];
+      }
+
+      const text = `${repo.name} ${repo.description || ''} ${(repo.topics || []).join(' ')}`.toLowerCase();
+      
+      let framework = 'Custom / Native';
+      let stack = [];
+
+      if (text.includes('fastapi')) framework = 'FastAPI';
+      else if (text.includes('flask')) framework = 'Flask';
+      else if (text.includes('django')) framework = 'Django';
+      else if (text.includes('gin')) framework = 'Gin';
+      else if (text.includes('grpc')) framework = 'gRPC';
+      else if (text.includes('laravel')) framework = 'Laravel';
+      else if (text.includes('express')) framework = 'Express';
+      else if (text.includes('next')) framework = 'Next.js';
+      else if (text.includes('react')) framework = 'React';
+      else if (text.includes('vue')) framework = 'Vue';
+      else if (repo.language) framework = `${repo.language} App`;
+
+      if (repo.language) stack.push(repo.language);
+
+      return { framework, stack };
+    }
+
+    function renderRepos(repos) {
+      const container = document.getElementById('portfolio');
+      container.innerHTML = '';
+
+      repos.forEach(repo => {
+        const meta = detectFramework(repo);
+        const lang = repo.language || 'Other';
+        const color = langColors[lang] || langColors['Other'];
+
+        const tagsHtml = meta.stack && meta.stack.length > 0 
+          ? `<div class="tech-tags">${meta.stack.map(tag => `<span class="tech-tag">${tag}</span>`).join('')}</div>`
+          : '';
+
+        const card = document.createElement('a');
+        card.className = 'card';
+        card.href = repo.html_url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.innerHTML = `
+          <div class="card-top">
             <h3>${repo.name}</h3>
-            <p>${repo.description || 'No description provided.'}</p>
-            <div class="meta">
-              <span>🟡 ${repo.language || 'Docs/Other'}</span>
-            </div>
-          `;
-          container.appendChild(card);
-        });
+            <span class="badge-framework"> ${meta.framework}</span>
+          </div>
+          <p>${repo.description || 'No description provided.'}</p>
+          ${tagsHtml}
+          <div class="meta">
+            <span class="lang-indicator">
+              <span class="lang-dot" style="background-color: ${color};"></span>
+              <span>${lang}</span>
+            </span>
+            <span class="github-link-icon" title="View repository">↗</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Static fallback dataset in case GitHub unauthenticated API rate-limits
+    const fallbackRepos = [
+      {
+        name: 'project_compvis',
+        description: 'Flask API for computer vision POC',
+        language: 'Python',
+        html_url: 'https://github.com/chryote/project_compvis'
+      },
+      {
+        name: 'project_rag',
+        description: 'RAG and document post-processing Go backend service POC',
+        language: 'Go',
+        html_url: 'https://github.com/chryote/project_rag'
+      },
+      {
+        name: 'project_m2m',
+        description: 'M2M financial pipeline gRPC C++ POC',
+        language: 'C++',
+        html_url: 'https://github.com/chryote/project_m2m'
+      },
+      {
+        name: 'project_ocr',
+        description: 'KTP-to-JSON tesseract OCR for hotel check-in data gathering POC',
+        language: 'Python',
+        html_url: 'https://github.com/chryote/project_ocr'
+      },
+      {
+        name: 'project_scrapper',
+        description: 'POC for hotel price scrapper',
+        language: 'JavaScript',
+        html_url: 'https://github.com/chryote/project_scrapper'
+      },
+      {
+        name: 'project_digiflazz',
+        description: 'Live and mock Digiflazz API gateway implementation POC',
+        language: 'PHP',
+        html_url: 'https://github.com/chryote/project_digiflazz'
+      },
+      {
+        name: 'text-rpg',
+        description: 'A tag-driven, systemic storytelling engine where macro world events, trade interactions, tile-level dynamics, and entity-driven scenes combine to create an endlessly emergent narrative world.',
+        language: 'Python',
+        html_url: 'https://github.com/chryote/text-rpg'
+      },
+      {
+        name: 'chryote.github.io',
+        description: 'Project Catalogue for chryote',
+        language: 'HTML',
+        html_url: 'https://github.com/chryote/chryote.github.io'
+      }
+    ];
+
+    // Fetch repositories sorted by most recently updated
+    fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=30`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`GitHub API returned status ${response.status}`);
+        }
+        return response.json();
       })
-      .catch(error => console.error('Error fetching repos:', error));
+      .then(repos => {
+        if (!Array.isArray(repos)) {
+          throw new Error('Invalid response structure');
+        }
+        // Filter out forked repositories so only original work shows
+        const originalRepos = repos.filter(repo => !repo.fork);
+        renderRepos(originalRepos);
+      })
+      .catch(error => {
+        console.warn('Falling back to curated project dataset:', error);
+        renderRepos(fallbackRepos);
+      });
   </script>
 </body>
 </html>
