@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Project Catalogue</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f6f8fa;
+      color: #24292f;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #d0d7de;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(140,149,159,0.2);
+    }
+    .card h3 {
+      margin: 0 0 0.5rem 0;
+      color: #0969da;
+      font-size: 1.25rem;
+    }
+    .card p {
+      flex-grow: 1;
+      color: #57606a;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .meta {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #57606a;
+      display: flex;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Project Catalogue</h1>
+  <p>A live view of my latest open-source work.</p>
+  
+  <div class="grid" id="portfolio">
+    <!-- Repositories will load here -->
+  </div>
+
+  <script>
+    
+    const username = 'chryote'; 
+    
+    // Fetch repositories sorted by most recently updated
+    fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=12`)
+      .then(response => response.json())
+      .then(repos => {
+        const container = document.getElementById('portfolio');
+        
+        // Filter out forked repositories so only your original work shows
+        const originalRepos = repos.filter(repo => !repo.fork);
+        
+        originalRepos.forEach(repo => {
+          const card = document.createElement('a');
+          card.className = 'card';
+          card.href = repo.html_url;
+          card.target = '_blank';
+          card.innerHTML = `
+            <h3>${repo.name}</h3>
+            <p>${repo.description || 'No description provided.'}</p>
+            <div class="meta">
+              <span>🟡 ${repo.language || 'Docs/Other'}</span>
+              <span>⭐ ${repo.stargazers_count}</span>
+              <span>🔀 ${repo.forks_count}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      })
+      .catch(error => console.error('Error fetching repos:', error));
+  </script>
+</body>
+</html>
