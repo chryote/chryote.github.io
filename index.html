@@ -204,10 +204,6 @@
       'text-rpg': {
         framework: 'Custom Sim Engine',
         stack: ['Python', 'Curses', 'Perlin Noise', 'Matplotlib']
-      },
-      'chryote.github.io': {
-        framework: 'Vanilla HTML5/JS',
-        stack: ['HTML5', 'CSS3', 'JavaScript', 'GitHub Pages']
       }
     };
 
@@ -332,12 +328,6 @@
         description: 'A tag-driven, systemic storytelling engine where macro world events, trade interactions, tile-level dynamics, and entity-driven scenes combine to create an endlessly emergent narrative world.',
         language: 'Python',
         html_url: 'https://github.com/chryote/text-rpg'
-      },
-      {
-        name: 'chryote.github.io',
-        description: 'Project Catalogue for chryote',
-        language: 'HTML',
-        html_url: 'https://github.com/chryote/chryote.github.io'
       }
     ];
 
@@ -353,8 +343,10 @@
         if (!Array.isArray(repos)) {
           throw new Error('Invalid response structure');
         }
-        // Filter out forked repositories so only original work shows
-        const originalRepos = repos.filter(repo => !repo.fork);
+        // Filter out forked repositories and this catalogue site repository
+        const originalRepos = repos.filter(repo => 
+          !repo.fork && repo.name.toLowerCase() !== `${username.toLowerCase()}.github.io`
+        );
         renderRepos(originalRepos);
       })
       .catch(error => {
