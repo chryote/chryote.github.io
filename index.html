@@ -270,10 +270,10 @@
   <!-- Interactive Category Tabs -->
   <div class="filter-bar">
     <div class="filter-tabs" role="tablist">
-      <button class="tab-btn active" data-filter="all" role="tab" aria-selected="true">
+      <button class="tab-btn" data-filter="all" role="tab" aria-selected="false">
         All <span class="tab-count" id="count-all">0</span>
       </button>
-      <button class="tab-btn" data-filter="poc" role="tab" aria-selected="false">
+      <button class="tab-btn active" data-filter="poc" role="tab" aria-selected="true">
         Professional POCs <span class="tab-count" id="count-poc">0</span>
       </button>
       <button class="tab-btn" data-filter="lab" role="tab" aria-selected="false">
@@ -368,7 +368,7 @@
     }
 
     let loadedRepos = [];
-    let activeFilter = 'all';
+    let activeFilter = 'poc';
 
     function updateCounts() {
       const pocCount = loadedRepos.filter(isPoc).length;
