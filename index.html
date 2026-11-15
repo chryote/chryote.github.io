@@ -117,6 +117,9 @@
     }
 
     .lang-pill {
+      appearance: none;
+      font: inherit;
+      outline: none;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
@@ -126,6 +129,36 @@
       border-radius: 999px;
       border: 1px solid var(--border-color);
       box-shadow: 0 1px 2px rgba(140, 149, 159, 0.08);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .lang-pill:hover {
+      border-color: #8c959f;
+      transform: translateY(-1px);
+    }
+
+    .lang-pill.active {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .lang-pill.active .lang-pill-count,
+    .lang-pill.active .lang-pill-name {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .lang-pill-clear {
+      font-size: 0.75rem;
+      margin-left: 0.2rem;
+      opacity: 0.7;
+    }
+
+    .lang-pill.active:hover .lang-pill-clear {
+      opacity: 1;
     }
 
     .lang-pill .lang-dot {
@@ -409,6 +442,7 @@
 
     let loadedRepos = [];
     let activeFilter = 'poc';
+    let activeLangFilter = null;
 
     function updateCounts() {
       const pocCount = loadedRepos.filter(isPoc).length;
@@ -419,12 +453,12 @@
       document.getElementById('count-lab').textContent = labCount;
     }
 
-    function renderLanguageSummary(repos) {
+    function renderLanguageSummary(categoryRepos) {
       const summaryContainer = document.getElementById('lang-summary');
       if (!summaryContainer) return;
 
       const counts = {};
-      repos.forEach(repo => {
+      categoryRepos.forEach(repo => {
         const lang = repo.language || 'Other';
         counts[lang] = (counts[lang] || 0) + 1;
       });
@@ -441,31 +475,53 @@
 
       summaryContainer.innerHTML = sortedLangs.map(([lang, count]) => {
         const color = langColors[lang] || langColors['Other'];
+        const isActive = activeLangFilter === lang;
         return `
-          <div class="lang-pill" title="${count} ${lang} ${count === 1 ? 'project' : 'projects'}">
+          <button type="button" class="lang-pill ${isActive ? 'active' : ''}" data-lang="${lang}" title="${isActive ? 'Click to clear language filter' : 'Filter by ' + lang}">
             <span class="lang-dot" style="background-color: ${color};"></span>
             <span class="lang-pill-count">${count}</span>
             <span class="lang-pill-name">${lang}</span>
-          </div>
+            ${isActive ? '<span class="lang-pill-clear" aria-hidden="true">✕</span>' : ''}
+          </button>
         `;
       }).join('');
+
+      summaryContainer.querySelectorAll('.lang-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const selectedLang = pill.dataset.lang;
+          if (activeLangFilter === selectedLang) {
+            activeLangFilter = null;
+          } else {
+            activeLangFilter = selectedLang;
+          }
+          renderFilteredRepos();
+        });
+      });
     }
 
     function renderFilteredRepos() {
       const container = document.getElementById('portfolio');
       container.innerHTML = '';
 
-      let reposToRender = loadedRepos;
+      let categoryRepos = loadedRepos;
       if (activeFilter === 'poc') {
-        reposToRender = loadedRepos.filter(isPoc);
+        categoryRepos = loadedRepos.filter(isPoc);
       } else if (activeFilter === 'lab') {
-        reposToRender = loadedRepos.filter(r => !isPoc(r));
+        categoryRepos = loadedRepos.filter(r => !isPoc(r));
       }
 
-      renderLanguageSummary(reposToRender);
+      renderLanguageSummary(categoryRepos);
+
+      let reposToRender = categoryRepos;
+      if (activeLangFilter) {
+        reposToRender = categoryRepos.filter(r => (r.language || 'Other') === activeLangFilter);
+      }
 
       if (reposToRender.length === 0) {
-        container.innerHTML = `<div class="empty-state"><p>No repositories found in this section.</p></div>`;
+        const msg = activeLangFilter
+          ? `No repositories found matching <strong>${activeLangFilter}</strong> in this section.`
+          : 'No repositories found in this section.';
+        container.innerHTML = `<div class="empty-state"><p>${msg}</p></div>`;
         return;
       }
 
@@ -516,6 +572,7 @@
         if (filter === activeFilter) return;
 
         activeFilter = filter;
+        activeLangFilter = null; // Reset language filter on category switch
         document.querySelectorAll('.tab-btn').forEach(b => {
           const isActive = b === btn;
           b.classList.toggle('active', isActive);
